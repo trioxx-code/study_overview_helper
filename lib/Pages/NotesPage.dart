@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:study_overview_helper/Constants.dart';
+import '../util/Constants.dart';
 
 class NotesPage extends StatefulWidget {
   @override
@@ -11,17 +11,27 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  late String semester = "";
-  late String sClass = "";
-  late String dozent = "";
-  late String files = "";
-  late String hints = "";
-  late String notes = "";
+  late File file;
+  late TextEditingController _semesterController;
+  late TextEditingController _noteController;
+  late TextEditingController _fileController;
+  late TextEditingController _hintController;
+  late String _dozent;
+  late String _class;
+
+  @override
+  void dispose() {
+    _semesterController.dispose();
+    _noteController.dispose();
+    _fileController.dispose();
+    _hintController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    readJson();
+    refresh();
   }
 
   @override
@@ -29,20 +39,17 @@ class _NotesPageState extends State<NotesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Notizen"),
+        actions: [
+          TextButton(
+            onPressed: () => readJson(),
+            child: Text("Datei öffnen", style: TextStyle(fontSize: 24),),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Text(semester),
-            Text(sClass),
-            Text(dozent),
-            Text(files),
-            Text(hints),
-            Text(notes),
-            TextButton(
-              onPressed: () => readJson(),
-              child: Text("dnoawndoiawdiwnai"),
-            ),
+
           ],
         ),
       ),
@@ -51,47 +58,40 @@ class _NotesPageState extends State<NotesPage> {
 
   Future refresh() async {}
 
-  void readContent() {
-    
-  }
-
-  Future<String> get _localPath async {
+  /*Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
-
   Future<File> get _localFile async {
     final path = await _localPath;
     print(path);
-    return File('$path/test.json');
+    return File('$path/$fileName');
   }
-
   Future<int> readCounter() async {
     try {
       final file = await _localFile;
-
-      // Read the file
       final contents = await file.readAsString();
-
       return int.parse(contents);
     } catch (e) {
-      // If encountering an error, return 0
       return 0;
     }
-  }
+  }*/
 
   Future<void> readJson() async {
-    final file = await _localFile;
-    final String response = await file.readAsString();
-    final data = await json.decode(response);
-    print(data);
-    setState(() {
-      semester = data[Constants.JSON_SEMESTER];
-      sClass = data[Constants.JSON_CLASS];
-      files = data[Constants.JSON_FILES];
-      dozent = data[Constants.JSON_DOZENT];
-      hints = data[Constants.JSON_HINTS];
-      notes = data[Constants.JSON_NOTE];
-    });
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if(result != null) {
+      final file = File(result.files.single.path);
+      final String response = await file.readAsString();
+      final data = await json.decode(response);
+      print(data);
+      setState(() {
+        _semesterController = new TextEditingController(text:data[Constants.JSON_SEMESTER]);
+        _class = data[Constants.JSON_CLASS];
+        _fileController = new TextEditingController(text: data[Constants.JSON_FILES]);
+        _dozent = data[Constants.JSON_DOZENT];
+        _hintController = new TextEditingController(text: data[Constants.JSON_HINTS]);
+        _noteController = new TextEditingController(text: data[Constants.JSON_NOTE]);
+      });
+    }
   }
 }

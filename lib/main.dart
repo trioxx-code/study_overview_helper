@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:study_overview_helper/Pages/AddEditNotePage.dart';
-import 'package:study_overview_helper/Pages/NotesPage.dart';
+import 'package:study_overview_helper/Pages/SettingsPage.dart';
 
 void main() {
   runApp(HomePage());
 }
-
+//@info: release: https://flutter.dev/desktop
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -17,11 +17,10 @@ class _HomePageState extends State<HomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blueGrey,
-        ),
-        brightness: Brightness.dark
-      ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.blueGrey,
+          ),
+          brightness: Brightness.dark),
       home: homeBuilder(context),
     );
   }
@@ -39,14 +38,23 @@ class _HomePageState extends State<HomePage> {
                 height: 10,
               ),
               OptionButton(() {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => AddEditNotePage(fileName: null,)));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AddEditNotePage(
+                          fileName: null,
+                        )));
               }, "Neue Notiz"),
-              SizedBox(height: 10),
+              /*SizedBox(height: 10),
               OptionButton(() {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => NotesPage()));
-              }, "Notizen ansehen"),
+              }, "Notizen ansehen"),*/
+              SizedBox(
+                height: 10,
+              ),
+              OptionButton(() {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => SettingsPage()));
+              }, "Einstellungen"),
             ],
           ),
         ),

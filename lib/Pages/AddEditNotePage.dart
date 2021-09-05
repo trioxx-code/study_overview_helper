@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:study_overview_helper/Constants.dart';
+import 'package:study_overview_helper/util/Storage.dart';
+import '../util/Constants.dart';
 
 class AddEditNotePage extends StatefulWidget {
   final String? fileName;
@@ -24,7 +26,8 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
   dynamic _dozent;
   dynamic _class;
-
+  List<String>? classes = [];
+  List<String>? dozents = [];
   late File file;
   late bool fileExists = false;
   late Directory dir;
@@ -45,6 +48,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   @override
   void initState() {
     super.initState();
+    refresh();
     if (widget.fileName == null) {
       fileName = Constants.DEFAULT_FILE_NAME;
       fileExists = false;
@@ -84,6 +88,19 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           ),
           SizedBox(
             width: 20,
+          ),
+          TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.grey.shade400),
+            ),
+            child: Text(
+              "Datei öffnen",
+              style: TextStyle(
+                color: Colors.indigo.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onPressed: () => readJson(),
           ),
         ],
       ),
@@ -126,15 +143,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
                   //elevation: 5,
                   style: TextStyle(color: Colors.indigo.shade200),
                   iconEnabledColor: Colors.indigo.shade200,
-                  items: <String>[
-                    'Android',
-                    'IOS',
-                    'Flutter',
-                    'Node',
-                    'Java',
-                    'Python',
-                    'PHP',
-                  ].map<DropdownMenuItem<String>>((String value) {
+                  items: dozents!.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -165,15 +174,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
                   //elevation: 5,
                   style: TextStyle(color: Colors.indigo.shade200),
                   iconEnabledColor: Colors.indigo.shade200,
-                  items: <String>[
-                    'Android',
-                    'IOS',
-                    'Flutter',
-                    'Node',
-                    'Java',
-                    'Python',
-                    'PHP',
-                  ].map<DropdownMenuItem<String>>((String value) {
+                  items: classes!.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -313,7 +314,10 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
   Future refresh() async {
     setState(() {});
-    //TODO
+    classes = await Storage.readDataStringList(Storage.SP_CLASSES);
+    if (classes == null) classes = [];
+    dozents = await Storage.readDataStringList(Storage.SP_DOZENTS);
+    if (dozents == null) dozents = [];
     setState(() {});
   }
 
@@ -362,6 +366,32 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     } else {
       print("File does not exist!");
       createFile(content, dir, fileName);
+    }
+  }
+
+  Future<void> readJson() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final file = File(result.files.single.path);
+      this.file = File(result.files.single.path);
+      path = result.files.single.path;
+      fileName = path.substring(path.lastIndexOf("\\")+1);
+      fileName = fileName.substring(0,fileName.indexOf(Constants.DEFAULT_FILE_SUFFIX));
+      final String response = await file.readAsString();
+      final data = await json.decode(response);
+      print(data);
+      setState(() {
+        _semesterController =
+            new TextEditingController(text: data[Constants.JSON_SEMESTER]);
+        _class = data[Constants.JSON_CLASS];
+        _fileController =
+            new TextEditingController(text: data[Constants.JSON_FILES]);
+        _dozent = data[Constants.JSON_DOZENT];
+        _hintController =
+            new TextEditingController(text: data[Constants.JSON_HINTS]);
+        _noteController =
+            new TextEditingController(text: data[Constants.JSON_NOTE]);
+      });
     }
   }
 }

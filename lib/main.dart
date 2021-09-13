@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:study_overview_helper/Pages/AddEditNotePage.dart';
+import 'package:study_overview_helper/Pages/Learning/LearningPage.dart';
 import 'package:study_overview_helper/Pages/SettingsPage.dart';
+import 'package:study_overview_helper/Database/DatabaseHelper.dart';
 
 void main() {
+  DatabaseHelper.initHive();
   runApp(HomePage());
 }
+
 //@info: release: https://flutter.dev/desktop
 class HomePage extends StatefulWidget {
   @override
@@ -48,6 +54,13 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => NotesPage()));
               }, "Notizen ansehen"),*/
+              SizedBox(
+                height: 10,
+              ),
+              OptionButton(() {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => LearningPage()));
+              }, "Lern-System"),
               SizedBox(
                 height: 10,
               ),

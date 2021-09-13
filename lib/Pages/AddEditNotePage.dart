@@ -58,7 +58,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     }
     getApplicationDocumentsDirectory().then((Directory directory) {
       dir = directory;
-      file = new File(path + "/" + fileName);
+      file = new File(path + "\\" + fileName);
       fileExists = file.existsSync();
       if (fileExists)
         this.setState(() => fileContent = json.decode(file.readAsStringSync()));
@@ -72,6 +72,22 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         title: Text("Neue Notiz"),
         actions: [
           TextButton(
+            onPressed: () {
+              store();
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.grey.shade400),
+            ),
+            child: Text(
+              "Speichern",
+              style: TextStyle(
+                color: Colors.green.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(width: 20,),
+          TextButton(
             onPressed: () async {
               await save();
             },
@@ -79,7 +95,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
               backgroundColor: MaterialStateProperty.all(Colors.grey.shade400),
             ),
             child: Text(
-              "Speichern",
+              "Speichern als",
               style: TextStyle(
                 color: Colors.green.shade700,
                 fontWeight: FontWeight.bold,
@@ -321,6 +337,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     setState(() {});
   }
 
+  //TODO: Austauschen durch normalen pfad picker und dann datei beschreiben.
   Future save() async {
     Directory rootPath = dir;
     path = (await FilesystemPicker.open(
@@ -332,6 +349,10 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       folderIconColor: Colors.teal,
     ))!;
     print(path);
+    store();
+  }
+
+  void store() {
     writeToFile({
       Constants.JSON_SEMESTER: "${_semesterController.text}",
       Constants.JSON_CLASS: _class,
@@ -357,7 +378,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     print("Writing to file!");
     if (fileExists &&
         file.absolute ==
-            path + "/" + fileName + Constants.DEFAULT_FILE_SUFFIX) {
+            path + "\\" + fileName + Constants.DEFAULT_FILE_SUFFIX) {
       print("File exists");
       Map<String, dynamic> jsonFileContent =
           json.decode(file.readAsStringSync());

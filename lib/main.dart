@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:study_overview_helper/Database/models/StudyClassModel.dart';
 import 'package:study_overview_helper/Pages/AddEditNotePage.dart';
 import 'package:study_overview_helper/Pages/Learning/LearningPage.dart';
 import 'package:study_overview_helper/Pages/SettingsPage.dart';
-import 'package:study_overview_helper/Database/DatabaseHelper.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  DatabaseHelper.initHive();
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(StudyClassModelAdapter());
+  await Hive.openBox("StudyClass");
   runApp(HomePage());
 }
 
@@ -18,6 +21,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  @override
+  void dispose() {
+    Hive.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

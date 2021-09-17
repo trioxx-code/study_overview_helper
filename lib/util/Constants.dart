@@ -8,4 +8,10 @@ class Constants {
   static const String JSON_SEMESTER = "Semester";
   static const String JSON_FILES = "Dateien";
   static const String FILE_NAME = "Name der Datei";
+
+  static const int STUDY_CLASS_MODEL_TYPE_ID = 0;
+  static const int STACK_MODEL_TYPE_ID = 1;
+
+  static const String HIVE_STUDY_CLASS = "StudyClass";
+  static const String HIVE_STACK = "Stack";
 }

@@ -1,16 +1,18 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:study_overview_helper/Database/models/StackModel.dart';
 import 'package:study_overview_helper/Database/models/StudyClassModel.dart';
 import 'package:study_overview_helper/Pages/AddEditNotePage.dart';
 import 'package:study_overview_helper/Pages/Learning/LearningPage.dart';
 import 'package:study_overview_helper/Pages/SettingsPage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:study_overview_helper/util/Constants.dart';
 
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(StudyClassModelAdapter());
-  await Hive.openBox("StudyClass");
+  Hive.registerAdapter(StackModelAdapter());
+  await Hive.openBox(Constants.HIVE_STUDY_CLASS);
+  await Hive.openBox(Constants.HIVE_STACK);
   runApp(HomePage());
 }
 

@@ -4,6 +4,7 @@ import 'package:study_overview_helper/Database/DatabaseHelper.dart';
 import 'package:study_overview_helper/Database/models/StudyClassModel.dart';
 import 'package:study_overview_helper/Pages/Learning/AddEditLearningStack.dart';
 import 'package:study_overview_helper/Pages/Stack/StackPage.dart';
+import 'package:study_overview_helper/util/Constants.dart';
 
 class LearningPage extends StatefulWidget {
   @override
@@ -76,7 +77,9 @@ class _LearningPageState extends State<LearningPage> {
           ),
           trailing: IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {},
+            onPressed: () {
+              values[index].delete();
+            },
           ),
           leading: IconButton(
             icon: Icon(Icons.edit),
@@ -96,6 +99,6 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   Future openBox() async {
-    await Hive.openBox("StudyClass");
+    await Hive.openBox(Constants.HIVE_STUDY_CLASS);
   }
 }

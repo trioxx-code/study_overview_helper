@@ -6,7 +6,7 @@ import 'package:study_overview_helper/util/Constants.dart';
 class AddEditLearningStack extends StatefulWidget {
   StudyClassModel? scm;
 
-  AddEditLearningStack({scm});
+  AddEditLearningStack({this.scm});
 
   @override
   _AddEditLearningStackState createState() => _AddEditLearningStackState();
@@ -23,7 +23,7 @@ class _AddEditLearningStackState extends State<AddEditLearningStack> {
     if (widget.scm != null) {
       _nameController = new TextEditingController(text: widget.scm!.className);
       _semesterController =
-          new TextEditingController(text: widget.scm!.semester.toString());
+      new TextEditingController(text: widget.scm!.semester.toString());
     } else {
       _nameController = new TextEditingController();
       _semesterController = new TextEditingController();
@@ -74,16 +74,16 @@ class _AddEditLearningStackState extends State<AddEditLearningStack> {
               decoration: InputDecoration(
                 labelText: "Stack Name",
                 labelStyle:
-                    TextStyle(color: Colors.indigo.shade200, fontSize: 28),
+                TextStyle(color: Colors.indigo.shade200, fontSize: 28),
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderSide:
-                      BorderSide(color: Colors.indigo.shade200, width: 2.0),
+                  BorderSide(color: Colors.indigo.shade200, width: 2.0),
                   borderRadius: BorderRadius.circular(25.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide:
-                      BorderSide(color: Colors.indigo.shade200, width: 2.0),
+                  BorderSide(color: Colors.indigo.shade200, width: 2.0),
                   borderRadius: BorderRadius.circular(25.0),
                 ),
               ),
@@ -99,16 +99,16 @@ class _AddEditLearningStackState extends State<AddEditLearningStack> {
                 decoration: InputDecoration(
                   labelText: Constants.JSON_SEMESTER,
                   labelStyle:
-                      TextStyle(color: Colors.indigo.shade200, fontSize: 28),
+                  TextStyle(color: Colors.indigo.shade200, fontSize: 28),
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Colors.indigo.shade200, width: 2.0),
+                    BorderSide(color: Colors.indigo.shade200, width: 2.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Colors.indigo.shade200, width: 2.0),
+                    BorderSide(color: Colors.indigo.shade200, width: 2.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
                 ),
@@ -126,11 +126,18 @@ class _AddEditLearningStackState extends State<AddEditLearningStack> {
   void saveAndLeave() async {
     if (_nameController.text.isNotEmpty &&
         _semesterController.text.isNotEmpty) {
-      final stack = StudyClassModel()
-        ..className = _nameController.text
-        ..semester = int.parse(_semesterController.text);
-      final box = DatabaseHelper.getClasses();
-      box.add(stack);
+      if (widget.scm == null) {
+        final stack = StudyClassModel()
+          ..className = _nameController.text
+          ..semester = int.parse(_semesterController.text);
+        final box = DatabaseHelper.getClasses();
+        box.add(stack);
+      } else {
+        StudyClassModel v = widget.scm!;
+        v.className = _nameController.text;
+        v.semester = int.parse(_semesterController.text);
+        v.save();
+      }
       Navigator.of(context).pop();
     }
   }

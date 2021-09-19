@@ -61,6 +61,7 @@ class _LearningPageState extends State<LearningPage> {
               builder: (context) => StackPage(
                 className: values[index].className,
                 semester: values[index].semester,
+                stackKey: values[index].key,
               ),
             ));
           },

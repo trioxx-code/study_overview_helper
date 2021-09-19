@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' as Q;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:study_overview_helper/Database/DatabaseHelper.dart';
+import 'package:study_overview_helper/Database/models/StackModel.dart';
 import 'package:study_overview_helper/util/Constants.dart';
 
 class StackPage extends StatefulWidget {
   final String className;
   final int semester;
+  final dynamic stackKey;
 
-  const StackPage({required this.className, required this.semester});
+  const StackPage({required this.className, required this.semester, required this.stackKey});
 
   @override
   _StackPageState createState() => _StackPageState();
@@ -19,13 +25,35 @@ class StackPage extends StatefulWidget {
 //@info: https://levelup.gitconnected.com/flutter-medium-like-text-editor-b41157f50f0e
 
 class _StackPageState extends State<StackPage> {
+  late Q.QuillController _controller;
 
-  TextEditingController _contentController = new TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     openBox();
+    final box = DatabaseHelper.getStacks();
+    //print("KEY==" + widget.stackKey.toString()); //@debug
+    if(widget.stackKey > box.length-1) {
+      _controller = new Q.QuillController.basic();
+    } else {
+      //@debug
+      /*box.keys.forEach((element) {
+        print("Keys="+element.toString());
+      });*/
+      final StackModel v = box.getAt(widget.stackKey);
+      //print(v.className); //@debug
+      var json = jsonDecode(v.content[Constants.HIVE_STACK_CONTENT_KEY]);
+      _controller = Q.QuillController(
+          document: Q.Document.fromJson(json),
+          selection: TextSelection.collapsed(offset: 0));
+    }
   }
 
   @override
@@ -33,44 +61,65 @@ class _StackPageState extends State<StackPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.className),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 30,),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  maxLines: 30,
-                  controller: _contentController,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    labelText: Constants.JSON_NOTE,
-                    labelStyle: TextStyle(
-                      fontSize: 48,
-                      color: Colors.lightBlue.shade400,
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide:
-                      const BorderSide(color: Colors.blueGrey, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                      BorderSide(color: Colors.lightBlue.shade400, width: 2.0),
-                    ),
-                  ),
-                ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              save();
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.grey.shade400),
+            ),
+            child: Text(
+              "Speichern",
+              style: TextStyle(
+                color: Colors.blue.shade700,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+      body: buildQuill(),
     );
   }
 
   Future openBox() async {
     await Hive.openBox(Constants.HIVE_STACK);
+  }
+
+  Widget buildQuill() {
+    return Column(children: [
+      Padding(
+        padding: EdgeInsets.only(top: 8),
+        child: Q.QuillToolbar.basic(controller: _controller),
+      ),
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Container(
+            child:
+                Q.QuillEditor.basic(controller: _controller, readOnly: false),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blueGrey, width: 5),
+            ),
+          ),
+        ),
+      ),
+    ]);
+  }
+
+  Future save() async {
+    final v = StackModel()
+      ..className = widget.className
+      ..content = {
+        Constants.HIVE_STACK_CONTENT_KEY:
+        jsonEncode(_controller.document.toDelta().toJson())
+      };
+    final box = DatabaseHelper.getStacks();
+    if(widget.stackKey > box.length-1)
+      box.add(v);
+    else
+      v.save();
   }
 
 }

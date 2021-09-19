@@ -14,4 +14,6 @@ class Constants {
 
   static const String HIVE_STUDY_CLASS = "StudyClass";
   static const String HIVE_STACK = "Stack";
+
+  static const String HIVE_STACK_CONTENT_KEY = "StackData";
 }

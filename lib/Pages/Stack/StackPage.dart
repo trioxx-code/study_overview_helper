@@ -109,17 +109,26 @@ class _StackPageState extends State<StackPage> {
   }
 
   Future save() async {
-    final v = StackModel()
-      ..className = widget.className
-      ..content = {
+    final box = DatabaseHelper.getStacks();
+    if(widget.stackKey > box.length-1){
+      dynamic v = StackModel()
+        ..className = widget.className
+        ..content = {
+          Constants.HIVE_STACK_CONTENT_KEY:
+          jsonEncode(_controller.document.toDelta().toJson())
+        };
+      box.add(v);
+      //print("A;Key=${widget.stackKey};className=${widget.className};");//@debug
+    } else {
+      dynamic v = box.getAt(widget.stackKey);
+      v.className = widget.className;
+      v.content = {
         Constants.HIVE_STACK_CONTENT_KEY:
         jsonEncode(_controller.document.toDelta().toJson())
       };
-    final box = DatabaseHelper.getStacks();
-    if(widget.stackKey > box.length-1)
-      box.add(v);
-    else
       v.save();
+      //print("S;Key=${widget.stackKey};className=${widget.className};");//@debug
+    }
   }
 
 }
